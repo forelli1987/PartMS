@@ -55,7 +55,9 @@ public class fenPartMS extends JFrame implements ActionListener
 	private final String txtSupprTable="Supprimer la table de partition";
 	private final String txtCreateTable="Créer une table de partition type MSDOS";
 	private final String txtFormatageBasNiveau="Formatage bas niveau";
-	private final String txtCacherSignature="Cacher signature MSDOS";
+	private final String txtMagicNumber="Gestion 'MAGIC NUMBER' du MBR";
+	private final String txtCacherSignature="Cacher le 'MAGIC NUMBER' du MBR";
+	private final String txtRevelerSignature="Révéler le 'MAGIC NUMBER' du MBR";
 	private final String txtModifIdentifiant="Modifier/Créer identifiant du disque";
 	private final String txtIdDemande="Indiquez l'ID du disque en hexa (Lettre de A à F autorisées et 0 à 9)";
 	private final String txtIdDemandeTitre="ID Volume";
@@ -65,8 +67,10 @@ public class fenPartMS extends JFrame implements ActionListener
 
 	private final String txtTypeTablePartitionTitre="Type partition";
 	private final String txtTypeTablePartition="Table de type : ";
+	private final String txtApropos="À propos";
+	private final String txtLicence="Licence";
 
-	private final String titreFenetre="MS Partition";
+	private final String titreFenetre="PartMS";
 	private String titreModifiable=titreFenetre;
 	private String cheminFichier="";
 
@@ -92,6 +96,8 @@ public class fenPartMS extends JFrame implements ActionListener
 	private JMenuBar menuPrincipal;
 	private JMenu menuVolume;
 	private JMenu menuTablePartition;
+	private JMenu menuMagicNumber;
+	private JMenu menuAPropos;
 
 	private JMenuItem menuStatVolume;
 	private JMenuItem menuCloseVolume;
@@ -99,12 +105,14 @@ public class fenPartMS extends JFrame implements ActionListener
 
 	private JMenuItem menuFormatageBN;
 	private JMenuItem menuCacherSignature;
+	private JMenuItem menuRevelerSignature;
 
 	private JMenuItem menuSupprTable;
 	private JMenuItem menuCreationTable;
 	private JMenuItem menuModifIdentifiant;
 
 	private JMenuItem menuInfoTable;
+	private JMenuItem menuLicence;
 
 	//Gestion menu fichier.
 	private static JFileChooser filou=new JFileChooser();
@@ -139,16 +147,16 @@ public class fenPartMS extends JFrame implements ActionListener
 		fen.setJMenuBar(initMenu());
 
 		//Déclaration des listener pour le menu.
-		menuStatVolume.addActionListener(this);
-		menuCloseVolume.addActionListener(this);
-		menuRafraichir.addActionListener(this);
-		menuInfoTable.addActionListener(this);
+		this.menuStatVolume.addActionListener(this);
+		this.menuCloseVolume.addActionListener(this);
+		this.menuRafraichir.addActionListener(this);
+		this.menuInfoTable.addActionListener(this);
 
-		menuCreationTable.addActionListener(this);
-		menuSupprTable.addActionListener(this);
-		menuFormatageBN.addActionListener(this);
-		menuCacherSignature.addActionListener(this);
-		menuModifIdentifiant.addActionListener(this);
+		this.menuCreationTable.addActionListener(this);
+		this.menuSupprTable.addActionListener(this);
+		this.menuFormatageBN.addActionListener(this);
+		this.menuCacherSignature.addActionListener(this);
+		this.menuModifIdentifiant.addActionListener(this);
 
 		fen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//splitPane.setResizeWeight(0.5);
@@ -161,46 +169,60 @@ public class fenPartMS extends JFrame implements ActionListener
 	private JMenuBar initMenu()
 	{
 		//Gestion du menu
-		menuPrincipal=new JMenuBar();
-		menuVolume=new JMenu(txtVolume);
-		menuStatVolume=new JMenuItem(txtStatVolume);
-		menuCloseVolume=new JMenuItem(txtCloseVolume);
-		menuRafraichir=new JMenuItem(txtRafraichir);
-		menuTablePartition=new JMenu(txtPartition);
-		menuSupprTable=new JMenuItem(txtSupprTable);
-		menuCreationTable=new JMenuItem(txtCreateTable);
-		menuFormatageBN=new JMenuItem(txtFormatageBasNiveau);
-		menuCacherSignature=new JMenuItem(txtCacherSignature);
-		menuModifIdentifiant=new JMenuItem(txtModifIdentifiant);
-		menuInfoTable=new JMenuItem(txtTypeTablePartitionTitre);
+		this.menuPrincipal=new JMenuBar();
 
-		menuVolume.add(menuStatVolume);
-		menuVolume.add(menuCloseVolume);
-		menuVolume.add(menuRafraichir);
-		menuVolume.add(menuTablePartition);
-		menuVolume.add(menuFormatageBN);
+		//Sous menu volume
+		this.menuVolume=new JMenu(this.txtVolume);
+		this.menuAPropos=new JMenu(this.txtApropos);
+		this.menuLicence=new JMenuItem(this.txtLicence);
+		this.menuStatVolume=new JMenuItem(this.txtStatVolume);
+		this.menuCloseVolume=new JMenuItem(this.txtCloseVolume);
+		this.menuRafraichir=new JMenuItem(this.txtRafraichir);
+
+		//Sous menu partition.
+		this.menuTablePartition=new JMenu(this.txtPartition);
+		this.menuSupprTable=new JMenuItem(this.txtSupprTable);
+		this.menuCreationTable=new JMenuItem(this.txtCreateTable);
+		this.menuFormatageBN=new JMenuItem(this.txtFormatageBasNiveau);
+		this.menuCacherSignature=new JMenuItem(this.txtCacherSignature);
+		this.menuRevelerSignature=new JMenuItem(this.txtRevelerSignature);
+		this.menuModifIdentifiant=new JMenuItem(this.txtModifIdentifiant);
+		this.menuInfoTable=new JMenuItem(this.txtTypeTablePartitionTitre);
+		this.menuMagicNumber=new JMenu(this.txtMagicNumber);
+		
+		//Construction du menu volume.
+		this.menuVolume.add(this.menuStatVolume);
+		this.menuVolume.add(this.menuCloseVolume);
+		this.menuVolume.add(this.menuRafraichir);
+		this.menuVolume.add(this.menuTablePartition);
+		this.menuVolume.add(this.menuFormatageBN);
 
 		//Les ajouts de menu et sous menu.
-		menuPrincipal.add(menuVolume);
-		menuVolume.add(menuTablePartition);
+		this.menuPrincipal.add(this.menuVolume);
+		this.menuPrincipal.add(this.menuAPropos);
+		this.menuVolume.add(this.menuTablePartition);
+		this.menuMagicNumber.add(this.menuCacherSignature);
+		this.menuMagicNumber.add(this.menuRevelerSignature);
 
 		//Sous menu table de partition.
-		menuTablePartition.add(menuCreationTable);
-		menuTablePartition.add(menuSupprTable);
-		menuTablePartition.add(menuCacherSignature);
-		menuTablePartition.add(menuModifIdentifiant);
-		menuTablePartition.add(menuInfoTable);
+		this.menuTablePartition.add(this.menuCreationTable);
+		this.menuTablePartition.add(this.menuSupprTable);
+		this.menuTablePartition.add(this.menuMagicNumber);
+		this.menuTablePartition.add(this.menuModifIdentifiant);
+		this.menuTablePartition.add(this.menuInfoTable);
+
+		this.menuAPropos.add(this.txtLicence);
 
 		menuActivation(false);
 
-		return menuPrincipal;
+		return this.menuPrincipal;
 	}
 
 	public void actionPerformed(ActionEvent arg0)
 	{
 
 		//Si on clique sur le menu stat volume.
-		if(arg0.getSource()==menuStatVolume)
+		if(arg0.getSource()==this.menuStatVolume)
 		{
 			cheminFichier=choixFichier();
 			titreModifiable=titreFenetre+" "+cheminFichier;
@@ -226,7 +248,7 @@ public class fenPartMS extends JFrame implements ActionListener
 
 		}
 
-		if(arg0.getSource()==menuCloseVolume)
+		if(arg0.getSource()==this.menuCloseVolume)
 		{
 			fen.setTitle(titreFenetre);
 
@@ -236,13 +258,13 @@ public class fenPartMS extends JFrame implements ActionListener
 			menuActivation(false);
 		}
 
-		if(arg0.getSource()==menuRafraichir)
+		if(arg0.getSource()==this.menuRafraichir)
 		{
 			System.out.println("Rafraichir : "+cheminFichier);
 			this.majou(cheminFichier);
 		}
 
-		if(arg0.getSource()==menuCreationTable)
+		if(arg0.getSource()==this.menuCreationTable)
 		{
 			if(cheminFichier!="-1")
 			{
@@ -254,7 +276,7 @@ public class fenPartMS extends JFrame implements ActionListener
 
 		}
 
-		if(arg0.getSource()==menuSupprTable)
+		if(arg0.getSource()==this.menuSupprTable)
 		{
 			if(cheminFichier!="-1")
 			{
@@ -265,7 +287,7 @@ public class fenPartMS extends JFrame implements ActionListener
 
 		}
 
-		if(arg0.getSource()==menuFormatageBN)
+		if(arg0.getSource()==this.menuFormatageBN)
 		{
 			int choix=-1;
 			choix=jop.showConfirmDialog(null,txtMessageFormatBN,txtTitreFormatBN,JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
@@ -283,19 +305,25 @@ public class fenPartMS extends JFrame implements ActionListener
 
 		}
 
-		if(arg0.getSource()==menuCacherSignature)
+		//Gestion de la signature
+		if(arg0.getSource()==this.menuCacherSignature)
 		{
 			this.volGest.writeSignature(cheminFichier,false);
 		}
 
-		if(arg0.getSource()==menuModifIdentifiant)
+		if(arg0.getSource()==this.menuRevelerSignature)
+		{
+			this.volGest.writeSignature(cheminFichier, true);
+		}
+
+		if(arg0.getSource()==this.menuModifIdentifiant)
 		{
 
 			dialogueId(cheminFichier);
 
 		}
 
-		if(arg0.getSource()==menuInfoTable)
+		if(arg0.getSource()==this.menuInfoTable)
 		{
 			dialogueInfotable(cheminFichier);
 		}
@@ -357,16 +385,16 @@ public class fenPartMS extends JFrame implements ActionListener
 	//Verouilleur du menu (pas de fichier sélectionné par exemple)
 	private void menuActivation(boolean activation)
 	{
-		menuRafraichir.setEnabled(activation);
-		menuTablePartition.setEnabled(activation);
-		menuCloseVolume.setEnabled(activation);
-		menuFormatageBN.setEnabled(activation);
-		menuCacherSignature.setEnabled(activation);
+		this.menuRafraichir.setEnabled(activation);
+		this.menuTablePartition.setEnabled(activation);
+		this.menuCloseVolume.setEnabled(activation);
+		this.menuFormatageBN.setEnabled(activation);
+		this.menuCacherSignature.setEnabled(activation);
 	}
 
 	private void superMenuBlocage(boolean activation)
 	{
-		menuVolume.setEnabled(activation);
+		this.menuVolume.setEnabled(activation);
 	}
 
 	private void dialogueId(String fichier)
