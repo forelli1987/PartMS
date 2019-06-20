@@ -227,7 +227,6 @@ public class fenPartMS extends JFrame implements ActionListener
 			cheminFichier=choixFichier();
 			titreModifiable=titreFenetre+" "+cheminFichier;
 			fen.setTitle(titreModifiable);
-			System.out.println(cheminFichier);
 			pI.setCheminFichier(cheminFichier);
 
 			if(cheminFichier!="-1")
@@ -235,7 +234,6 @@ public class fenPartMS extends JFrame implements ActionListener
 				menuActivation(true);
 
 				//Envoi du nom de fichier au panneau d'information
-				System.out.println("majGraphique");
 				pI.setCheminFichier(cheminFichier);
 				majou(cheminFichier);
 
@@ -243,7 +241,6 @@ public class fenPartMS extends JFrame implements ActionListener
 			else
 			{
 				menuActivation(false);
-				System.out.println("Pas de données");
 			}
 
 		}
@@ -260,7 +257,6 @@ public class fenPartMS extends JFrame implements ActionListener
 
 		if(arg0.getSource()==this.menuRafraichir)
 		{
-			System.out.println("Rafraichir : "+cheminFichier);
 			this.majou(cheminFichier);
 		}
 
@@ -268,7 +264,6 @@ public class fenPartMS extends JFrame implements ActionListener
 		{
 			if(cheminFichier!="-1")
 			{
-				System.out.println("--- CREATION TABLE ---");
 				dialogueId(cheminFichier);
 				this.volGest.writeSignature(cheminFichier,true);
 
@@ -280,7 +275,6 @@ public class fenPartMS extends JFrame implements ActionListener
 		{
 			if(cheminFichier!="-1")
 			{
-				System.out.println("--- SUPPRESION TABLE ---");
 				threadEffacerTable=new effaceTableThread(cheminFichier);
 				threadEffacerTable.start();
 			}
@@ -352,10 +346,10 @@ public class fenPartMS extends JFrame implements ActionListener
 				retourFichier=fichierOuvrir.getAbsolutePath();
 			}
 
+			//Bouton annuler.
 			catch (NullPointerException erFile)
 			{
-				System.out.println("Annulation");
-				retourFichier="-1";
+				retourFichier="";
 			}
 		}
 
@@ -400,7 +394,7 @@ public class fenPartMS extends JFrame implements ActionListener
 	private void dialogueId(String fichier)
 	{
 			String idReleve="";
-			String pattern="[0-9,A-F,a-f]{1,7}";
+			String pattern="[0-9,A-F,a-f]{1,8}";
 
 			try
 			{
@@ -418,8 +412,8 @@ public class fenPartMS extends JFrame implements ActionListener
 				}
 			}
 
-			catch(NullPointerException erSaisie){System.out.println("ANNULE SAISIE");}
-			catch(NumberFormatException erSaisir){System.out.println("saisie non retenue");}
+			catch(NullPointerException erSaisie){}
+			catch(NumberFormatException erSaisir){}
 	}
 
 	private void dialogueInfotable(String fichier)

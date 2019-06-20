@@ -109,8 +109,6 @@ public class panneauStat extends JPanel //implements MouseListener
 		angleCalcules[0]=(int)((debut/tailleVolume)*360D);
 		angleCalcules[1]=(int)((taillePortion/tailleVolume)*360D);
 
-		System.out.println("Angles : "+angleCalcules[0]+" "+angleCalcules[1]+" "+tailleTotale/(1024*1024));
-
 		return angleCalcules;
 
 	}

@@ -40,14 +40,6 @@ import java.util.*;
 //Hérite de JDialog pour pouvoir ajouter des barres de progression ou autre.
 public class operationFichier extends JFrame
 {
-	//Gestion des boîtes de diglogue
-	private JFrame fenFichier=new JFrame();
-	private Dimension fenProgression=new Dimension(250,150);
-	private JPanel conteneur=new JPanel();
-	private JProgressBar barProgression=new JProgressBar();
-
-	//Gestions des layout
-	private FlowLayout fLayout = new FlowLayout(FlowLayout.CENTER,10,10);
 
 	//Bloc de déclaration des variables communes.
 	private int cleCut[]={0,0,0,0};
@@ -119,11 +111,6 @@ public class operationFichier extends JFrame
 						tempByteFinal=(byte)(tempByteFinal^cleDecoupe[i]);
 					}
 
-					/*for(i=0;i<6;i++)
-					{
-						tempByteFinal=(byte)(tempByteFinal^cleSupplementaire[i]);
-					}*/
-
 					fos.write(tempByteFinal);
 				}
 
@@ -165,11 +152,6 @@ public class operationFichier extends JFrame
 
 					//Boucle de décryptage
 					//tempByteFinal=(byte)(bit^cleSupplementaire[5]);
-
-					/*for(i=4;i>=0;i--)
-					{
-						tempByteFinal=(byte)(tempByteFinal^cleSupplementaire[i]);
-					}*/
 
 					tempByteFinal=(byte)(bit^cleDecoupe[tailleBoucle-1]);
 
@@ -274,10 +256,6 @@ public class operationFichier extends JFrame
 
 		byte donneesInjection[]=new byte[(int)tailleBloc];
 
-
-		System.out.println("Nbr octets : "+adresseFichier);
-		System.out.println("Taille bloc : "+tailleBloc);
-
 		try
 		{
 			//Ajouter
@@ -361,7 +339,6 @@ public class operationFichier extends JFrame
 		tailleDonnee=tab.length;
 		int tabRecuperation[]={};
 
-		System.out.println("Position du curseur : "+adresseDebut);
 
 		try
 		{
@@ -377,12 +354,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 
@@ -416,12 +391,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 		return tabRecup;
@@ -442,12 +415,10 @@ public class operationFichier extends JFrame
 
 			while(retourCle[i].length()<8)
 			{
-				//System.out.println("Longueur chaîne : "+retourCle[i].length());
 				retourCle[i]="0"+retourCle[i];
 
 			}
 
-			//System.out.println("Binaire : "+retourCle[i]);
 		}
 
 		return retourCle;
@@ -543,12 +514,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 	}
@@ -618,12 +587,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 		return retourBinaire;
@@ -679,7 +646,6 @@ public class operationFichier extends JFrame
 		long i=0;
 
 		//Début d'écriture.
-		System.out.println("Début d'écriture ...");
 		try
 		{
 
@@ -698,12 +664,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier [INTROUVABLE] ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier [I/O] ...");
 		}
 
 	}
@@ -714,7 +678,6 @@ public class operationFichier extends JFrame
 		long i=0;
 
 		//Début d'écriture.
-		System.out.println("Début d'écriture ...");
 		try
 		{
 
@@ -734,12 +697,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier [INTROUVABLE] ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier [I/O] ...");
 		}
 
 	}
@@ -754,13 +715,11 @@ public class operationFichier extends JFrame
 
 
 		//Début d'écriture.
-		System.out.println("Début d'écriture ...");
 		try
 		{
 
 			RandomAccessFile fInjection=new RandomAccessFile(pathFichier,"rws");
 			tailleRecup=taille;
-			System.out.println("Taille :\t"+tailleRecup);
 
 			tailleBloc=calcBloc(tailleRecup);
 			byte ecriture[]=new byte[tailleBloc];
@@ -768,14 +727,12 @@ public class operationFichier extends JFrame
 
 
 		//Initialisation d'un tableau
-			System.out.println("Initialisation du tableau d'octet");
 			for(i=0;i<(long)(tailleBloc);i++)
 			{
 				ecriture[(int)(i)]=(byte)(0);
 			}
 
 			tailleRecup=tailleRecup/(long)(tailleBloc);
-			System.out.println("Nbr itération :\t"+tailleRecup);
 
 			i=0;
 
@@ -791,12 +748,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier [INTROUVABLE] ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier [I/O] ...");
 		}
 
 
@@ -811,13 +766,11 @@ public class operationFichier extends JFrame
 
 
 		//Début d'écriture.
-		System.out.println("Début d'écriture ...");
 		try
 		{
 
 			RandomAccessFile fInjection=new RandomAccessFile(pathFichier,"rws");
 			tailleRecup=taille;
-			System.out.println("Taille :\t"+tailleRecup);
 
 			tailleBloc=calcBloc(tailleRecup);
 			byte ecriture[]=new byte[tailleBloc];
@@ -825,14 +778,12 @@ public class operationFichier extends JFrame
 
 
 		//Initialisation d'un tableau
-			System.out.println("Initialisation du tableau d'octet");
 			for(i=0;i<(long)(tailleBloc);i++)
 			{
 				ecriture[(int)(i)]=(byte)(0);
 			}
 
 			tailleRecup=tailleRecup/(long)(tailleBloc);
-			System.out.println("Nbr itération :\t"+tailleRecup);
 
 			i=0;
 			fInjection.seek(curseur);
@@ -848,12 +799,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier [INTROUVABLE] ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier [I/O] ...");
 		}
 
 	}
@@ -868,13 +817,11 @@ public class operationFichier extends JFrame
 
 
 		//Début d'écriture.
-		System.out.println("Début d'écriture ...");
 		try
 		{
 
 			RandomAccessFile fInjection=new RandomAccessFile(pathFichier,"rws");
 			tailleRecup=fInjection.length();
-			System.out.println("Taille :\t"+tailleRecup);
 
 			tailleBloc=calcBloc(tailleRecup);
 			byte ecriture[]=new byte[tailleBloc];
@@ -882,14 +829,12 @@ public class operationFichier extends JFrame
 
 
 		//Initialisation d'un tableau
-			System.out.println("Initialisation du tableau d'octet");
 			for(i=0;i<(long)(tailleBloc);i++)
 			{
 				ecriture[(int)(i)]=(byte)(0);
 			}
 
 			tailleRecup=tailleRecup/(long)(tailleBloc);
-			System.out.println("Nbr itération :\t"+tailleRecup);
 
 			i=0;
 
@@ -905,12 +850,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier [INTROUVABLE] ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier [I/O] ...");
 		}
 
 	}
@@ -951,12 +894,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			System.out.println("Erreur de fichier ...");
 		}
 
 	}
@@ -998,7 +939,6 @@ public class operationFichier extends JFrame
 			fInjection.writeBytes("Offset\t|\tOctet diff\t|\tCHAR\n");
 
 			tailleBlocEcriture=calcBloc(fLecture.length());
-			System.out.println("Taille bloc bufferisation dumpage : "+tailleBlocEcriture);
 
 			while(i<fLecture.length())
 			{
@@ -1046,13 +986,11 @@ public class operationFichier extends JFrame
 					//Affichage des caractère ascii ou non dans le fichier de retour.
 					if(tempo<0x21 || tempo>0x7e)
 					{
-						//fInjection.writeBytes("0x"+Long.toHexString(i)+"\t|\t"+"0x"+tempoSt+"\t\t |\t"+"|?|"+"\n");
 						blocInjection=blocInjection+"0x"+Long.toHexString(i)+"\t|\t"+"0x"+tempoSt+"\t\t |\t"+"|?|"+"\n";
 					}
 
 					else
 					{
-						//fInjection.writeBytes("0x"+Long.toHexString(i)+"\t|\t"+"0x"+tempoSt+"\t\t |\t"+(char)(tempo)+"\n");
 						blocInjection=blocInjection+"0x"+Long.toHexString(i)+"\t|\t"+"0x"+tempoSt+"\t\t |\t"+(char)(tempo)+"\n";
 					}
 
@@ -1064,7 +1002,6 @@ public class operationFichier extends JFrame
 				//Ecriture
 				if(j==tailleBlocEcriture)
 				{
-					//System.out.print(blocInjection);
 					fInjection.writeBytes(blocInjection);
 					j=0;
 					blocInjection="";
@@ -1076,12 +1013,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 		}
 
 	}
@@ -1163,12 +1098,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 		}
 
 	}
@@ -1248,12 +1181,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 		}
 
 	}
@@ -1277,8 +1208,6 @@ public class operationFichier extends JFrame
 		//fInjection.seek(debut);
 
 		tailleFichier=this.calcTaille(pathLecture);
-		System.out.println("Taille : "+tailleFichier);
-
 
 		try
 		{
@@ -1296,8 +1225,6 @@ public class operationFichier extends JFrame
 			byte tempo[]=new byte[tailleBloc];
 			fin=tailleFichier/(long)(tailleBloc);
 
-			System.out.println("Taille bloc calculée : "+tailleBloc+"\nNombre d\'occurence : "+fin);
-
 			i=0;
 			while(i<fin)
 			{
@@ -1313,13 +1240,11 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 			erFile.printStackTrace();
 		}
 
 		catch (IOException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 			erFile.printStackTrace();
 		}
 
@@ -1372,12 +1297,12 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
+
 		}
 
 		catch (IOException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
+
 		}
 
 	}
@@ -1424,12 +1349,10 @@ public class operationFichier extends JFrame
 
 		catch (FileNotFoundException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 		}
 
 		catch (IOException erFile)
 		{
-			//System.out.println("Erreur de fichier ...");
 		}
 
 	}
@@ -1549,12 +1472,6 @@ public class operationFichier extends JFrame
 			tailleRetour=2097152;
 		}
 
-		//8 mo
-		/*else if(taille>tailleTab[3])
-		{
-			tailleRetour=8388608;
-		}*/
-
 		return tailleRetour;
 
 	}
@@ -1571,14 +1488,7 @@ public class operationFichier extends JFrame
 			//fTaille.readByte(byte[] b);
 
 			i=fTaille.length();
-
-
-			/*File fTaille=new File(cheminFichier);
-			System.out.println("Existe : "+fTaille.exists());
-			System.out.println("Taille : "+fTaille.sizeOf());*/
 			fTaille.close();
-
-
 
 		}
 
@@ -1589,41 +1499,11 @@ public class operationFichier extends JFrame
 
 
 		//catch (EOFException erFile){}
-		System.out.println("Taille estimée : "+i);
 		return i;
 
 	}
 
-
-
-        //*************** MBR GESTION ***************
-        //Gestion de la table de partition msdos
-
-        /*public long long lecture16Inverse(String fichierALire,long position)
-        {
-            byte[] retourLecture=new byte[16];
-            long long retourCalcule=0;
-            int i=0;
-            try
-            {
-                RandomAccessFile fLecture=new RandomAccessFile(fichierALire,"r");
-                fLecture.seek(position);
-                fLecture.read(retourLecture);
-                fLecture.close();
-
-            }
-
-
-            catch (IOException erFile){}
-            catch (NullPointerException erFile){}
-
-            retourCalcule= (retourLecture[15]<<120)&0xff000000000000000000000000000000L|(retourLecture[14]<<112)&0x00ff0000000000000000000000000000L|(retourLecture[13]<<104)&0x0000ff00000000000000000000000000L|(retourLecture[12]<<96)&0x000000ff000000000000000000000000L|(retourLecture[11]<<88)&0x00000000ff0000000000000000000000L|(retourLecture[10]<<80)&0x0000000000ff00000000000000000000L|(retourLecture[9]<<72)&0x000000000000ff000000000000000000L|(retourLecture[8]<<64)&0x00000000000000ff0000000000000000L|(retourLecture[7]<<56)&0x0000000000000000ff00000000000000L|(retourLecture[6]<<48)&0x000000000000000000ff000000000000L|(retourLecture[5]<< 40)&0x00000000000000000000ff0000000000L|(retourLecture[4]<< 32)&0x0000000000000000000000ff00000000L|(retourLecture[3]<<24)&0x000000000000000000000000ff000000L|(retourLecture[2]<<16)&0x00000000000000000000000000ff0000L|(retourLecture[1]<< 8)&0x0000000000000000000000000000ff00L|(retourLecture[0]<< 0)&0x000000000000000000000000000000ffL;
-
-
-            return retourCalcule;
-
-
-        }*/
+//***** Gestion du LittleEndian
 
         public long lecture8Inverse(String fichierALire,long position)
         {
@@ -1715,7 +1595,6 @@ public class operationFichier extends JFrame
             for(int i=nbr-1;i>=0;i--)
             {
 				lectureRetournee[j]=retourLecture[i];
-				System.out.print(Integer.toHexString((int)(retourLecture[i])&0x000000ff));
 				j++;
 			}
 
@@ -1849,7 +1728,7 @@ public class operationFichier extends JFrame
         public void ecriture1(String fichierALire,long position,int dataWrite)
         {
             byte []reconstructionByte=new byte[1];
-						reconstructionByte[0]=(byte)((dataWrite & 0x000000FF)>>0);
+			reconstructionByte[0]=(byte)((dataWrite & 0x000000FF)>>0);
 
             int retourCalcule=0;
             int i=0;
@@ -1866,9 +1745,7 @@ public class operationFichier extends JFrame
             catch (IOException erFile){}
             catch (NullPointerException erFile){}
 
-        }
-
-
-
+		}
+	
 
 }

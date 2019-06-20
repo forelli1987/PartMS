@@ -105,7 +105,6 @@ public class volume extends operationFichier
 
 		public void ecriturePartition(String cheminBloc,int numeroDescripteur,long debutPartition,long taillePartition,int type,boolean bootable)
 		{
-			System.out.println("ECRITURE PARTITION  n° Descripteur : "+numeroDescripteur+"\nDebut partition : "+debutPartition+"\nTaille partition : "+taillePartition);
 			long curseur=0;
 
 			//Conversion en int du début de la partition et conversion en secteur
@@ -113,8 +112,6 @@ public class volume extends operationFichier
 
 			//Conversion en int de la taille de la partition et conversion en secteur
 			int intTaillePartitionSecteur=(int)(taillePartition/512L);
-
-			System.out.println("ECRITURE PARTITION [SECTEUR] \nDebut partition secteur: "+intDebutPartitionSecteur+"\nTaille partition : "+intTaillePartitionSecteur);
 
 			//Ecriture du début de la partition.
 			ecriture4Inverse(cheminBloc,posDebutPartition+16L*numeroDescripteur,intDebutPartitionSecteur); //Divisé par 512 conversion en secteur et conversion en MO.
@@ -262,14 +259,12 @@ public class volume extends operationFichier
 			{
 				RandomAccessFile gptCrc=new RandomAccessFile(cheminFichier,"rw");
 
-				System.out.println("---- RAZ CRC ----");
 
 				//Raz du CRC
 				gptCrc.seek(posCrcEnTete);
 				gptCrc.write(crcZero);
 
 				//On se place au début de l'entête.
-				System.out.println("---- Calcul CRC32 en tête et réécriture ----");
 
 				//On se déplace au début de l'entête GPT
 				gptCrc.seek(posSignatureGPT);
@@ -297,14 +292,8 @@ public class volume extends operationFichier
 				crcEntete[1]=crcEnteteCalcul.getValue();
 				this.ecriture4Inverse(cheminFichier,posCrcHeader1TablePartition,(int)(crcEntete[1]));
 
-				System.out.println("CRC32 TABLE : "+Long.toHexString(crcEntete[1]));
-				System.out.println("CRC32 en tête GPT : "+Long.toHexString(crcEntete[0]));
-
-
 				//Récupération de la taille du fichier.
 				tailleVolume=new File(cheminFichier).length();
-				System.out.println("Adresse fin clé : "+Long.toHexString(tailleVolume));
-				System.out.println("Adresse CRC32: "+Long.toHexString(tailleVolume-posSignatureGPT));
 
 				//Réécriture du CRC32 de la table dans le backup de l'entête.
 				this.ecriture4Inverse(cheminFichier,(tailleVolume-posSignatureGPT)+offsetTableFin,(int)(crcEntete[1]));
@@ -325,8 +314,6 @@ public class volume extends operationFichier
 
 				//Récupération de la valeur.
 				crcEntete[2]=crcEnteteCalcul.getValue();
-
-				System.out.println("CRC32 du backup de l'header : "+Integer.toHexString((int)crcEntete[2]));
 
 				gptCrc.close();
 
@@ -409,16 +396,6 @@ public class volume extends operationFichier
 			long adresseFinBackup=tailleVolume-secteurTaille-tailleDescripteurPartition;
 			adresseFinBackup=adresseFinBackup+offsetDescripteurPartition*numeroDescripteur;
 			adresseFinBackup=adresseFinBackup+offsetFinPartition;
-
-			System.out.println("Taille : "+"0x"+Long.toHexString(tailleVolume));
-			System.out.println("Adresse début : "+"0x"+Long.toHexString(adresseDebut));
-			System.out.println("Adresse début backup : "+"0x"+Long.toHexString(adresseDebutBackup));
-			System.out.println("Adresse fin : "+"0x"+Long.toHexString(adresseFin));
-			System.out.println("Adresse fin backup : "+"0x"+Long.toHexString(adresseFinBackup));
-			System.out.println("Début descripteur backup : "+"0x"+Long.toHexString(tailleVolume-secteurTaille-tailleDescripteurPartition));
-
-			System.out.println("Début : "+"0x"+Long.toHexString(debutSecteur));
-			System.out.println("Fin : "+"0x"+Long.toHexString(finSecteur));
 
 			//Ecriture de la table de partition.
 			//Ecriture du début de la partition sur les descripteurs standards et backup
@@ -532,12 +509,10 @@ public class volume extends operationFichier
 
 	    catch (FileNotFoundException erFile)
 	    {
-	      System.out.println("Erreur de fichier [INTROUVABLE] ...");
 	    }
 
 	    catch (IOException erFile)
 	    {
-	      System.out.println("Erreur de fichier [I/O] ...");
 	    }
 
 	  }
