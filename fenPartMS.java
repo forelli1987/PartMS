@@ -137,7 +137,6 @@ public class fenPartMS extends JFrame implements ActionListener
 
 	public fenPartMS()
 	{
-
 		fen=new JFrame();
 		this.initSplit();
 		pan2.setBackground(Color.RED);
