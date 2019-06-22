@@ -18,10 +18,16 @@ Hérite de operationFichier, contient des méthodes permettant d'intéragir avec
 */
 
 import java.io.RandomAccessFile;
-import java.io.IOException;
+import java.io.FileWriter;
 import java.io.File;
+
+import java.io.IOException;
 import java.util.zip.CRC32; //Utilisation du CRC32 (enfin ...)
 import java.io.FileNotFoundException;
+
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class volume extends operationFichier
 {
@@ -49,6 +55,18 @@ public class volume extends operationFichier
 	private final long secteurTaille=0x200L;
 	private final long MO=0x100000L;
 	private final long tailleDescripteurPartition=0x4000L;
+
+	private String nomFichierJournal;
+
+	public volume()
+	{
+		this.nomFichierJournal="PartMS";
+	}
+
+	public volume(String nomFichier)
+	{
+		this.nomFichierJournal=nomFichier;
+	}
 
         public long [] lecturePartitionMBR(String cheminBlocFichier,int numeroPartition)
         {
@@ -516,4 +534,79 @@ public class volume extends operationFichier
 	    }
 
 	  }
+
+		//Le journal
+		public void journal(String contenu, String nomFichier, boolean console)
+		{
+
+			//Récupération de la date courante.
+			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			Date date = new Date();
+
+			if(console)
+			{
+				System.out.println("["+date+"]"+contenu);
+			}
+
+			else
+			{
+				try
+				{
+					nomFichier="/var/log/"+nomFichier+".log";
+					RandomAccessFile fichier=new RandomAccessFile(nomFichier,"rw");
+
+					//On parcours les lignes du fichier afin d'en ajouter des ouvelles.
+					while(fichier.getFilePointer()<fichier.length())
+					{
+						fichier.readLine();
+					}
+
+					contenu="["+date+"] "+contenu+"\n";
+
+					fichier.writeBytes(contenu);
+					fichier.close();
+				}
+
+				catch (IOException erFile){System.out.println("Journal IO");erFile.printStackTrace();}
+				catch (NullPointerException erFile){System.out.println("Journal Null");erFile.printStackTrace();}
+			}
+		}
+
+		//Surcharge de la méthode précédente, on supprime l'argument du nom de fichier.
+		public void journal(String contenu, boolean console)
+		{
+			//Récupération de la date courante.
+			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			Date date = new Date();
+			String nomFichier_local="";
+
+			if(console)
+			{
+				System.out.println("["+date+"] "+contenu);
+			}
+
+			else
+			{
+				try
+				{
+					nomFichier_local="/var/log/"+this.nomFichierJournal+".log";
+					RandomAccessFile fichier=new RandomAccessFile(nomFichier_local,"rw");
+
+					//On parcours les lignes du fichier afin d'en ajouter des ouvelles.
+					while (fichier.getFilePointer()<fichier.length())
+					{
+						fichier.readLine();
+					}
+
+					contenu="["+date+"] "+contenu+"\n";
+
+					fichier.writeBytes(contenu);
+					fichier.close();
+				}
+
+				catch (IOException erFile){System.out.println("Journal IO");erFile.printStackTrace();}
+				catch (NullPointerException erFile){System.out.println("Journal Null");erFile.printStackTrace();}
+			}
+		}
+
 }

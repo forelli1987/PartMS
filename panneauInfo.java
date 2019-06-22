@@ -57,6 +57,8 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 	private final String txtBtnEcrireTable="Écrire la table de partition";
 	private final String txtCkEcrire="Modifier table";
 	private final String txtCkBoot="Bootable ?";
+	private final String titre="PartMS";
+	private final boolean console=false;
 
 	//Composants
 	private JComboBox comboPartition=new JComboBox(partitionListe);
@@ -77,7 +79,7 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 
 	private FlowLayout fLayout=new FlowLayout(FlowLayout.RIGHT,15,10);
 	private operationFichier opeFILE=new operationFichier();
-	private volume volGest=new volume();
+	private volume volGest=new volume(this.titre);
 	private panneauStat pS1=new panneauStat();
 
 	//Tableau receuillant les informations du MBR.
@@ -88,9 +90,9 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 
 
 		//Taille des champs
-		fieType.setPreferredSize(new Dimension(tailleX,tailleY));
-		fieDebutPartition.setPreferredSize(new Dimension(tailleX,tailleY));
-		fieTaillePartition.setPreferredSize(new Dimension(tailleX,tailleY));
+		this.fieType.setPreferredSize(new Dimension(tailleX,tailleY));
+		this.fieDebutPartition.setPreferredSize(new Dimension(tailleX,tailleY));
+		this.fieTaillePartition.setPreferredSize(new Dimension(tailleX,tailleY));
 
 		this.setLayout(fLayout);
 
@@ -112,24 +114,24 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 		this.add(btnEcrireTable);
 
 		//Surveillance de l'action des composants
-		ckEcrire.addActionListener(this);
-		comboPartition.addItemListener(this);
-		btnEcrireTable.addActionListener(this);
+		this.ckEcrire.addActionListener(this);
+		this.comboPartition.addItemListener(this);
+		this.btnEcrireTable.addActionListener(this);
 
 
 		//Désactivation par défaut.
-		ckEcrire.setEnabled(false);
-		ckBoot.setEnabled(false);
-		fieType.setEnabled(false);
-		fieDebutPartition.setEnabled(false);
-		fieTaillePartition.setEnabled(false);
-		btnEcrireTable.setEnabled(false);
-		comboPartition.setEnabled(false);
+		this.ckEcrire.setEnabled(false);
+		this.ckBoot.setEnabled(false);
+		this.fieType.setEnabled(false);
+		this.fieDebutPartition.setEnabled(false);
+		this.fieTaillePartition.setEnabled(false);
+		this.btnEcrireTable.setEnabled(false);
+		this.comboPartition.setEnabled(false);
 
 		//Changement de couleur désactivée
-		fieType.setDisabledTextColor(Color.BLACK);
-		fieTaillePartition.setDisabledTextColor(Color.BLACK);
-		fieDebutPartition.setDisabledTextColor(Color.BLACK);
+		this.fieType.setDisabledTextColor(Color.BLACK);
+		this.fieTaillePartition.setDisabledTextColor(Color.BLACK);
+		this.fieDebutPartition.setDisabledTextColor(Color.BLACK);
 	}
 
 	//Les listener
@@ -138,30 +140,31 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 	{
 
 
-		if(!ckEcrire.isSelected())
+		if(!this.ckEcrire.isSelected())
 		{
 			verrouComposantListe(false);
 		}
 
-		else if(ckEcrire.isSelected())
+		else if(this.ckEcrire.isSelected())
 		{
 			verrouComposantListe(true);
 		}
 
 		if(arg0.getSource()==btnEcrireTable)
 		{
+			String contenuJournal="";
 			boolean bootableSignal=false;
 
 			long calcMODebutPartition=0;
-			calcMODebutPartition=Long.parseLong(fieDebutPartition.getText());
+			calcMODebutPartition=Long.parseLong(this.fieDebutPartition.getText());
 			calcMODebutPartition=calcMODebutPartition*(1024L*1024L);
 
 			long calcMOTaillePartition=0;
-			calcMOTaillePartition=Long.parseLong(fieTaillePartition.getText());
+			calcMOTaillePartition=Long.parseLong(this.fieTaillePartition.getText());
 
 			calcMOTaillePartition=calcMOTaillePartition*(1024L*1024L);
 
-			int typeCalcPartition=Integer.parseInt(fieType.getText(),16);
+			int typeCalcPartition=Integer.parseInt(this.fieType.getText(),16);
 
 			if(ckBoot.isSelected())
 			{
@@ -175,6 +178,10 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 
 			//Récupération des informations.
 			this.volGest.ecriturePartition(cheminFichierTraitement,comboPartition.getSelectedIndex(),calcMODebutPartition,calcMOTaillePartition,typeCalcPartition,bootableSignal);
+			contenuJournal="\n-- Ecriture partition ["+(comboPartition.getSelectedIndex()+1)+"] --\n";
+			contenuJournal=contenuJournal+"Bootable : "+bootableSignal+"\nDebut : "+this.fieDebutPartition.getText()+" mo | ";
+			contenuJournal=contenuJournal+"Taille : "+this.fieTaillePartition.getText()+" mo";
+			this.volGest.journal(contenuJournal,this.console);
 		}
 
 	}

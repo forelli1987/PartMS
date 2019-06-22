@@ -32,6 +32,8 @@ import javax.swing.JMenuItem;
 import javax.swing.filechooser.*;
 import javax.swing.JFileChooser;
 import java.io.File;
+
+
 import java.io.IOException;
 
 //Gestion des boîtes de dialogue
@@ -119,12 +121,14 @@ public class fenPartMS extends JFrame implements ActionListener
 
 	//Creation des objets pour la gestion de fichier et des panels.
 	private operationFichier opFi=new operationFichier();
-	private volume volGest=new volume();
+	private volume volGest;
 	private panneauStat pS=new panneauStat();
 	private panneauInfo pI=new panneauInfo();
 	private JOptionPane jop=new JOptionPane();
 	private remplZeroAutoThread threadFormatageBN;
 	private effaceTableThread threadEffacerTable;
+
+	private boolean affichageConsole=false;
 
 	private void initSplit()
 	{
@@ -137,13 +141,14 @@ public class fenPartMS extends JFrame implements ActionListener
 
 	public fenPartMS()
 	{
-		fen=new JFrame();
+		this.fen=new JFrame();
 		this.initSplit();
-		pan2.setBackground(Color.RED);
-		fen.setTitle(titreModifiable);
-		fen.setSize(tailleFenX,tailleFenY);
-		fen.setLocationRelativeTo(null);
-		fen.setJMenuBar(initMenu());
+		this.pan2.setBackground(Color.RED);
+		fen.setTitle(this.titreModifiable);
+		this.volGest=new volume(this.titreModifiable);
+		this.fen.setSize(tailleFenX,tailleFenY);
+		this.fen.setLocationRelativeTo(null);
+		this.fen.setJMenuBar(initMenu());
 
 		//Déclaration des listener pour le menu.
 		this.menuStatVolume.addActionListener(this);
@@ -155,14 +160,15 @@ public class fenPartMS extends JFrame implements ActionListener
 		this.menuSupprTable.addActionListener(this);
 		this.menuFormatageBN.addActionListener(this);
 		this.menuCacherSignature.addActionListener(this);
+		this.menuRevelerSignature.addActionListener(this);
 		this.menuModifIdentifiant.addActionListener(this);
 
-		fen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.fen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//splitPane.setResizeWeight(0.5);
 		splitPane.setDividerLocation(300);
-		fen.add(splitPane);
-		fen.setVisible(true);
-		fen.setResizable(false);
+		this.fen.add(splitPane);
+		this.fen.setVisible(true);
+		this.fen.setResizable(false);
 	}
 
 	private JMenuBar initMenu()
@@ -188,7 +194,7 @@ public class fenPartMS extends JFrame implements ActionListener
 		this.menuModifIdentifiant=new JMenuItem(this.txtModifIdentifiant);
 		this.menuInfoTable=new JMenuItem(this.txtTypeTablePartitionTitre);
 		this.menuMagicNumber=new JMenu(this.txtMagicNumber);
-		
+
 		//Construction du menu volume.
 		this.menuVolume.add(this.menuStatVolume);
 		this.menuVolume.add(this.menuCloseVolume);
@@ -223,9 +229,9 @@ public class fenPartMS extends JFrame implements ActionListener
 		//Si on clique sur le menu stat volume.
 		if(arg0.getSource()==this.menuStatVolume)
 		{
-			cheminFichier=choixFichier();
-			titreModifiable=titreFenetre+" "+cheminFichier;
-			fen.setTitle(titreModifiable);
+			this.cheminFichier=choixFichier();
+			this.titreModifiable=titreFenetre+" "+cheminFichier;
+			this.fen.setTitle(titreModifiable);
 			pI.setCheminFichier(cheminFichier);
 
 			if(cheminFichier!="-1")
@@ -302,11 +308,13 @@ public class fenPartMS extends JFrame implements ActionListener
 		if(arg0.getSource()==this.menuCacherSignature)
 		{
 			this.volGest.writeSignature(cheminFichier,false);
+			this.volGest.journal("Dissimulation du MAGIC NUMBER.",this.affichageConsole);
 		}
 
 		if(arg0.getSource()==this.menuRevelerSignature)
 		{
 			this.volGest.writeSignature(cheminFichier, true);
+			this.volGest.journal("Restauration du MAGIC NUMBER.",this.affichageConsole);
 		}
 
 		if(arg0.getSource()==this.menuModifIdentifiant)
@@ -402,7 +410,6 @@ public class fenPartMS extends JFrame implements ActionListener
 				if(idReleve.matches(pattern) && idReleve!=null)
 				{
 					this.volGest.writeId(fichier,idReleve);
-
 				}
 
 				else if(!idReleve.matches(pattern) && idReleve!=null)

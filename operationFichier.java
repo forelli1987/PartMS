@@ -34,8 +34,7 @@ import java.io.FileNotFoundException;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+
 
 import java.util.*;
 
@@ -1749,34 +1748,6 @@ public class operationFichier extends JFrame
 
 		}
 
-		//Le journal
-		public void journal(String contenu, String nomFichier, boolean console)
-		{
-			//Récupération de la date courante.
-			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-			Date date = new Date();
 
-			if(console)
-			{
-				System.out.println("["+date+"]"+contenu);
-			}
-
-			else
-			{
-				try
-				{
-					String nomComplet="/var/log/"+nomFichier+".log";
-					RandomAccessFile fichier=new RandomAccessFile(nomComplet,"rw");
-										
-					contenu="["+date+"]"+"\t"+contenu+"\n";
-
-					fichier.writeBytes(contenu);
-				}
-
-				catch (IOException erFile){}
-				catch (NullPointerException erFile){}
-			}
-		}
-	
 
 }
