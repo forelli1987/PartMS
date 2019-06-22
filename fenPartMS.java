@@ -139,8 +139,9 @@ public class fenPartMS extends JFrame implements ActionListener
 	}
 
 
-	public fenPartMS()
+	public fenPartMS(String titre)
 	{
+		this.titreModifiable=titre;
 		this.fen=new JFrame();
 		this.initSplit();
 		this.pan2.setBackground(Color.RED);
