@@ -121,6 +121,65 @@ public class volume extends operationFichier
 
 		}
 
+		public long [] lecturePartitionMBREtendue(String cheminBlocFichier,int numeroPartition)
+        {
+			//[0] contiendra le début de la partition en octet
+			//[1] contiendra la taille de la partition en octet
+			//[2] contiendra le type de la partition
+			//[3] contiendra la signature du MBR
+			//[4] contiendra la taille du volume
+			//[5] Si la partition est bootable
+			long retourPartition[]=new long[6];
+			long curseur=this.posBootable;
+
+
+			//On décrémente pour effectuer plus facilement le calcul d'adresse
+			numeroPartition--;
+
+			//Ouverture du fichier en lecture
+
+			//Lecture du début de la partition
+			//Calcul de la position du curseur pour obtenir le début de la partition.
+
+			curseur=posDebutPartition+16L*numeroPartition;
+			curseur=curseur+this.MO;
+
+			retourPartition[0]=(long)(lecture4Inverse(cheminBlocFichier,curseur));
+			retourPartition[0]=retourPartition[0]*512L; //Conversion de secteur à octet.
+
+			//Calcul de la position du curseur pour obtenir la taille.
+			curseur=posTaillePartition+16L*numeroPartition;
+			curseur=curseur+this.MO;
+
+			retourPartition[1]=lecture4Inverse(cheminBlocFichier,curseur);
+			retourPartition[1]=retourPartition[1]*512L; //Conversion de secteur à octet.
+
+			curseur=posTypePartition+16L*numeroPartition;
+			curseur=curseur+this.MO;
+
+			retourPartition[2]=(long)lecture1(cheminBlocFichier,curseur);
+			curseur=posSignatureMBR+this.MO;
+
+			retourPartition[3]=(long)lecture2Inverse(cheminBlocFichier,curseur);
+
+			try
+			{
+				RandomAccessFile tailleFichier=new RandomAccessFile(cheminBlocFichier,"r");
+				retourPartition[4]=tailleFichier.length();
+				tailleFichier.close();
+			}
+
+			catch (IOException erFile){}
+            catch (NullPointerException erFile){}
+
+			curseur=posBootable+16L*numeroPartition;
+			curseur=curseur+this.MO;
+            retourPartition[5]=(long)lecture1(cheminBlocFichier,curseur);
+
+			return retourPartition;
+
+		}
+
 		public void ecriturePartition(String cheminBloc,int numeroDescripteur,long debutPartition,long taillePartition,int type,boolean bootable)
 		{
 			long curseur=0;
@@ -156,18 +215,91 @@ public class volume extends operationFichier
 
 		}
 
+		/*
+		Les partitions étendues.
+		Fonctionnent de la même manière que les 4 partitions normales, mais elles sont placé à 0x100000.
+		Un MAGIC NUMBER est également là à la même adresse + 0x100000
+		*/ 
+		
+		public void ecriturePartitionEtendue(String cheminBloc,int numeroDescripteur,long debutPartition,long taillePartition,int type,boolean bootable)
+		{
+			long curseur=0;
+
+			//Conversion en int du début de la partition et conversion en secteur
+			int intDebutPartitionSecteur=(int)(debutPartition/512L);
+
+			//Conversion en int de la taille de la partition et conversion en secteur
+			int intTaillePartitionSecteur=(int)(taillePartition/512L);
+
+			//Ecriture du début de la partition.
+
+			curseur=posDebutPartition+16L*numeroDescripteur;
+			curseur=curseur+this.MO;
+
+			ecriture4Inverse(cheminBloc,curseur,intDebutPartitionSecteur); //Divisé par 512 conversion en secteur et conversion en MO.
+
+			//Ecriture de la taille
+
+			curseur=posTaillePartition+16L*numeroDescripteur;
+			curseur=curseur+this.MO;
+			
+			ecriture4Inverse(cheminBloc,curseur,intTaillePartitionSecteur);
+
+			curseur=posTypePartition+16L*numeroDescripteur;
+			curseur=curseur+this.MO;
+
+			ecriture1(cheminBloc,curseur,type);
+
+			writeSignatureEtendue(cheminBloc,true);
+
+			//Lever le flag bootable
+			if(bootable)
+			{
+				curseur=posBootable+16L*numeroDescripteur;
+				curseur=curseur+this.MO;
+				ecriture1(cheminBloc,curseur,0x80);
+			}
+
+			//Partition non bootable
+		    else
+			{
+				curseur=posBootable+16L*numeroDescripteur;
+				curseur=curseur+this.MO;
+
+				ecriture1(cheminBloc,curseur,0x0);
+			}
+
+
+		}
+
 		//Ecriture simple de la signature du MBR.
 		public void writeSignature(String cheminBloc,boolean signature)
 		{
 			if(signature)
 			{
 
-				ecriture2Inverse(cheminBloc,posSignatureMBR,0xaa55);
+				ecriture2Inverse(cheminBloc,this.posSignatureMBR,0xaa55);
 			}
 
 			else if(!signature)
 			{
-				ecriture2Inverse(cheminBloc,posSignatureMBR,0);
+				ecriture2Inverse(cheminBloc,this.posSignatureMBR,0);
+			}
+
+		}
+
+		public void writeSignatureEtendue(String cheminBloc,boolean signature)
+		{
+			long positionLocale=this.posSignatureMBR+this.MO;
+			if(signature)
+			{
+
+				ecriture2Inverse(cheminBloc,positionLocale,0xaa55);
+			}
+
+			else if(!signature)
+			{
+				ecriture2Inverse(cheminBloc,positionLocale,0);
 			}
 
 		}

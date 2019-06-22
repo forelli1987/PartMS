@@ -81,8 +81,8 @@ public class fenPartMS extends JFrame implements ActionListener
 	private final String txtMessageFormatBN="Êtes vous sûr de vouloir formater ? \nAucunes données ne seront récupérables après cette opération";
 
 	//Taille de la fenêtre
-	private final int tailleFenX=600;
-	private final int tailleFenY=270;
+	private final int tailleFenX=618;
+	private final int tailleFenY=260;
 
 	private final int tailleChampX=200;
 	private final int tailleChampY=24;
@@ -133,8 +133,8 @@ public class fenPartMS extends JFrame implements ActionListener
 	private void initSplit()
 	{
 
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true, pS, pI);
-		splitPane.setEnabled(false);
+		this.splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true, pS, pI);
+		this.splitPane.setEnabled(false);
 
 	}
 
@@ -145,7 +145,7 @@ public class fenPartMS extends JFrame implements ActionListener
 		this.fen=new JFrame();
 		this.initSplit();
 		this.pan2.setBackground(Color.RED);
-		fen.setTitle(this.titreModifiable);
+		this.fen.setTitle(this.titreModifiable);
 		this.volGest=new volume(this.titreModifiable);
 		this.fen.setSize(tailleFenX,tailleFenY);
 		this.fen.setLocationRelativeTo(null);
@@ -166,7 +166,7 @@ public class fenPartMS extends JFrame implements ActionListener
 
 		this.fen.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//splitPane.setResizeWeight(0.5);
-		splitPane.setDividerLocation(300);
+		this.splitPane.setDividerLocation(300);
 		this.fen.add(splitPane);
 		this.fen.setVisible(true);
 		this.fen.setResizable(false);
@@ -231,16 +231,16 @@ public class fenPartMS extends JFrame implements ActionListener
 		if(arg0.getSource()==this.menuStatVolume)
 		{
 			this.cheminFichier=choixFichier();
-			this.titreModifiable=titreFenetre+" "+cheminFichier;
-			this.fen.setTitle(titreModifiable);
-			pI.setCheminFichier(cheminFichier);
+			this.titreModifiable=this.titreFenetre+" "+this.cheminFichier;
+			this.fen.setTitle(this.titreModifiable);
+			this.pI.setCheminFichier(this.cheminFichier);
 
-			if(cheminFichier!="-1")
+			if(this.cheminFichier!="-1")
 			{
 				menuActivation(true);
 
 				//Envoi du nom de fichier au panneau d'information
-				pI.setCheminFichier(cheminFichier);
+				this.pI.setCheminFichier(cheminFichier);
 				majou(cheminFichier);
 
 			}
@@ -253,11 +253,11 @@ public class fenPartMS extends JFrame implements ActionListener
 
 		if(arg0.getSource()==this.menuCloseVolume)
 		{
-			fen.setTitle(titreFenetre);
+			this.fen.setTitle(titreFenetre);
 
 			//Blocage du menu dans le pannel panneauInfo
-			pS.effaceGraph();
-			pI.closeVolume();
+			this.pS.effaceGraph();
+			this.pI.closeVolume();
 			menuActivation(false);
 		}
 
@@ -272,6 +272,7 @@ public class fenPartMS extends JFrame implements ActionListener
 			{
 				dialogueId(cheminFichier);
 				this.volGest.writeSignature(cheminFichier,true);
+				this.volGest.writeSignatureEtendue(cheminFichier,true);
 
 			}
 
@@ -281,8 +282,8 @@ public class fenPartMS extends JFrame implements ActionListener
 		{
 			if(cheminFichier!="-1")
 			{
-				threadEffacerTable=new effaceTableThread(cheminFichier);
-				threadEffacerTable.start();
+				this.threadEffacerTable=new effaceTableThread(cheminFichier);
+				this.threadEffacerTable.start();
 			}
 
 		}
@@ -309,12 +310,14 @@ public class fenPartMS extends JFrame implements ActionListener
 		if(arg0.getSource()==this.menuCacherSignature)
 		{
 			this.volGest.writeSignature(cheminFichier,false);
+			this.volGest.writeSignatureEtendue(cheminFichier,false);
 			this.volGest.journal("Dissimulation du MAGIC NUMBER.",this.affichageConsole);
 		}
 
 		if(arg0.getSource()==this.menuRevelerSignature)
 		{
 			this.volGest.writeSignature(cheminFichier, true);
+			this.volGest.writeSignatureEtendue(cheminFichier, true);
 			this.volGest.journal("Restauration du MAGIC NUMBER.",this.affichageConsole);
 		}
 

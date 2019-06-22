@@ -49,11 +49,11 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 	private final int tailleY=24;
 
 	//Chaînes des composants
-	private final String txtCombo="Choix partition";
+	private final String txtCombo="Partition";
 	private final String txtTypePartition="Type de partition";
 	private final String txtDebutPartition="Debut (mo)";
 	private final String txtTaillePartition="Taille (mo)";
-	private final String [] partitionListe={"Partition #1","Partition #2","Partition #3","Partition #4"};
+	private String [] partitionListe;
 	private final String txtBtnEcrireTable="Écrire la table de partition";
 	private final String txtCkEcrire="Modifier table";
 	private final String txtCkBoot="Bootable ?";
@@ -61,7 +61,7 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 	private final boolean console=false;
 
 	//Composants
-	private JComboBox comboPartition=new JComboBox(partitionListe);
+	private JComboBox comboPartition;
 	private JButton btnEcrireTable=new JButton(txtBtnEcrireTable);
 	private JCheckBox ckEcrire=new JCheckBox(txtCkEcrire);
 	private JCheckBox ckBoot=new JCheckBox(txtCkBoot);
@@ -88,6 +88,19 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 	public panneauInfo()
 	{
 
+		//Initialisation de la comboBox
+		partitionListe=new String[8];
+		for(int i=0;i<4;i++)
+		{
+			partitionListe[i]="Partition #"+(i+1);
+		}
+
+		for(int i=4;i<8;i++)
+		{
+			partitionListe[i]="Partition [ETENDUE] #"+(i+1);
+		}
+
+		this.comboPartition=new JComboBox(partitionListe);
 
 		//Taille des champs
 		this.fieType.setPreferredSize(new Dimension(tailleX,tailleY));
@@ -132,6 +145,7 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 		this.fieType.setDisabledTextColor(Color.BLACK);
 		this.fieTaillePartition.setDisabledTextColor(Color.BLACK);
 		this.fieDebutPartition.setDisabledTextColor(Color.BLACK);
+
 	}
 
 	//Les listener
@@ -154,6 +168,8 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 		{
 			String contenuJournal="";
 			boolean bootableSignal=false;
+			long rechercheEtendue[];
+			boolean etendue=false;
 
 			long calcMODebutPartition=0;
 			calcMODebutPartition=Long.parseLong(this.fieDebutPartition.getText());
@@ -176,12 +192,51 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 				bootableSignal=false;
 			}
 
-			//Récupération des informations.
-			this.volGest.ecriturePartition(cheminFichierTraitement,comboPartition.getSelectedIndex(),calcMODebutPartition,calcMOTaillePartition,typeCalcPartition,bootableSignal);
-			contenuJournal="\n-- Ecriture partition ["+(comboPartition.getSelectedIndex()+1)+"] --\n";
-			contenuJournal=contenuJournal+"Bootable : "+bootableSignal+"\nDebut : "+this.fieDebutPartition.getText()+" mo | ";
-			contenuJournal=contenuJournal+"Taille : "+this.fieTaillePartition.getText()+" mo";
-			this.volGest.journal(contenuJournal,this.console);
+
+			//Récupération des informations pour l'écriture.
+			/*
+			La condition suivante permet de savoir s'il s'agit de partition "classiques" ou bien étendues.
+			Elle contrôle également la présence d'une partition primaire avec l'identifiant 0x5 (étendue)
+			*/
+
+			//Si partition étendue
+			if(this.comboPartition.getSelectedIndex()>3)
+			{
+				//Recherche d'une partition primaire de type étendue
+				for(int i=0;i<4;i++)
+				{
+					rechercheEtendue=this.volGest.lecturePartitionMBR(cheminFichierTraitement, i);
+					if(rechercheEtendue[2]==0x5L)
+					{
+						etendue=true;
+					}
+
+				}
+				
+				if(etendue)
+				{
+					this.volGest.ecriturePartitionEtendue(cheminFichierTraitement,this.comboPartition.getSelectedIndex()-4,calcMODebutPartition,calcMOTaillePartition,typeCalcPartition,bootableSignal);
+					this.volGest.writeSignatureEtendue(cheminFichierTraitement, true);
+					contenuJournal="\n-- Ecriture partition ETENDUE ["+(this.comboPartition.getSelectedIndex()+1)+"] --\n";
+					contenuJournal=contenuJournal+"Bootable : "+bootableSignal+"\nDebut : "+this.fieDebutPartition.getText()+" mo | ";
+					contenuJournal=contenuJournal+"Taille : "+this.fieTaillePartition.getText()+" mo";
+					this.volGest.journal(contenuJournal,this.console);
+				}
+
+			}
+
+			else
+			{
+				this.volGest.ecriturePartition(cheminFichierTraitement,this.comboPartition.getSelectedIndex(),calcMODebutPartition,calcMOTaillePartition,typeCalcPartition,bootableSignal);
+				this.volGest.writeSignature(cheminFichierTraitement, true);
+				contenuJournal="\n-- Ecriture partition ["+(this.comboPartition.getSelectedIndex()+1)+"] --\n";
+				contenuJournal=contenuJournal+"Bootable : "+bootableSignal+"\nDebut : "+this.fieDebutPartition.getText()+" mo | ";
+				contenuJournal=contenuJournal+"Taille : "+this.fieTaillePartition.getText()+" mo";
+				this.volGest.journal(contenuJournal,this.console);
+			}
+
+
+
 		}
 
 	}
@@ -189,104 +244,49 @@ public class panneauInfo extends JPanel implements ActionListener,ItemListener
 	//Gestion du basculement des tables de partitions.
 	public void itemStateChanged(ItemEvent arg0)
 	{
-		switch(comboPartition.getSelectedIndex())
+
+		if(comboPartition.getSelectedIndex()<4)
 		{
-			case 0:
+			this.infoMBR=this.volGest.lecturePartitionMBR(cheminFichierTraitement,comboPartition.getSelectedIndex()+1);
+
+			this.fieDebutPartition.setText(Long.toString(infoMBR[0]/(1024*1024))+" mo");
+			this.fieTaillePartition.setText(Long.toString(infoMBR[1]/(1024*1024))+" mo");
+			this.fieType.setText("0x"+Long.toHexString(infoMBR[2]));
+	
+			//Coche la case bootable quand
+			if(infoMBR[5]==0x80)
 			{
-				//Ecriture des données récupérées dans les champs.
-				infoMBR=this.volGest.lecturePartitionMBR(cheminFichierTraitement,1);
-
-				fieDebutPartition.setText(Long.toString(infoMBR[0]/(1024*1024))+" mo");
-				fieTaillePartition.setText(Long.toString(infoMBR[1]/(1024*1024))+" mo");
-				fieType.setText("0x"+Long.toHexString(infoMBR[2]));
-
-				//Coche la case bootable quand
-				if(infoMBR[5]==0x80)
-				{
-					ckBoot.setSelected(true);
-				}
-
-				else if(infoMBR[5]==0x0)
-				{
-					ckBoot.setSelected(false);
-				}
-
-
-				break;
+				this.ckBoot.setSelected(true);
 			}
-
-			case 1:
+	
+			else if(infoMBR[5]==0x0)
 			{
-				//Ecriture des données récupérées dans les champs.
-				infoMBR=this.volGest.lecturePartitionMBR(cheminFichierTraitement,2);
-
-				fieDebutPartition.setText(Long.toString(infoMBR[0]/(1024*1024))+" mo");
-				fieTaillePartition.setText(Long.toString(infoMBR[1]/(1024*1024))+" mo");
-				fieType.setText("0x"+Long.toHexString(infoMBR[2]));
-
-				//Coche la case bootable quand
-				if(infoMBR[5]==0x80)
-				{
-					ckBoot.setSelected(true);
-				}
-
-				else if(infoMBR[5]==0x0)
-				{
-					ckBoot.setSelected(false);
-				}
-
-
-				break;
-			}
-
-			case 2:
-			{
-				//Ecriture des données récupérées dans les champs.
-				infoMBR=this.volGest.lecturePartitionMBR(cheminFichierTraitement,3);
-
-				fieDebutPartition.setText(Long.toString(infoMBR[0]/(1024*1024))+" mo");
-				fieTaillePartition.setText(Long.toString(infoMBR[1]/(1024*1024))+" mo");
-				fieType.setText("0x"+Long.toHexString(infoMBR[2]));
-
-				//Coche la case bootable quand
-				if(infoMBR[5]==0x80)
-				{
-					ckBoot.setSelected(true);
-				}
-
-				else if(infoMBR[5]==0x0)
-				{
-					ckBoot.setSelected(false);
-				}
-
-
-				break;
-			}
-
-			case 3:
-			{
-				//Ecriture des données récupérées dans les champs.
-				infoMBR=this.volGest.lecturePartitionMBR(cheminFichierTraitement,4);
-
-				fieDebutPartition.setText(Long.toString(infoMBR[0]/(1024*1024))+" mo");
-				fieTaillePartition.setText(Long.toString(infoMBR[1]/(1024*1024))+" mo");
-				fieType.setText("0x"+Long.toHexString(infoMBR[2]));
-
-				//Coche la case bootable quand
-				if(infoMBR[5]==0x80)
-				{
-					ckBoot.setSelected(true);
-				}
-
-				else if(infoMBR[5]==0x0)
-				{
-					ckBoot.setSelected(false);
-				}
-
-
-				break;
+				this.ckBoot.setSelected(false);
 			}
 		}
+
+		else
+		{
+			this.infoMBR=this.volGest.lecturePartitionMBREtendue(cheminFichierTraitement,comboPartition.getSelectedIndex()-3);
+
+			this.fieDebutPartition.setText(Long.toString(infoMBR[0]/(1024*1024))+" mo");
+			this.fieTaillePartition.setText(Long.toString(infoMBR[1]/(1024*1024))+" mo");
+			this.fieType.setText("0x"+Long.toHexString(infoMBR[2]));
+	
+			//Coche la case bootable quand
+			if(infoMBR[5]==0x80)
+			{
+				this.ckBoot.setSelected(true);
+			}
+	
+			else if(infoMBR[5]==0x0)
+			{
+				this.ckBoot.setSelected(false);
+			}
+		}
+
+
+
 	}
 
 
