@@ -39,6 +39,19 @@ public class fat extends operationFichier
 	private long serialNum; // Numéro de série du disque.
 	private String nomDisque; // Nom du volume sur 11 caractères. NO NAME si rien.
 	private String type16; // FAT,FAT12 ou FAT16.
+	
+	//BPB spécifique FAT32
+	private long tailleFatSecteur32; //Taille d'une table d'allocation de fichier en secteur.
+	private int attribut32; // Attribut du disque
+	private int versionMaj; //Version majeur du système de fichier
+	private int versionMin; //Version mineur du système de fichier.
+	private long numFirstCluster; //Numéro du premier cluster.
+	private int copBootNumSecteur; //Numéro du secteur contenant la copie du secteur de boot.
+	private int idDisque32; //ID du disque. 0x00 amovible, 0x80 disque dur
+	private int signature32; //Signature du FAT32
+	private long serialNum32; // Numéro de série du disque.
+	private String nomDisque32; // Nom du volume sur 11 caractères. NO NAME si rien.
+	private String type32; // FAT32.
 
 	//Constructeur
 	public fat(String pathParam){
@@ -63,8 +76,24 @@ public class fat extends operationFichier
 		this.idDisque=this.lecture1(this.pathDevice,0x24L);
 		this.signature=this.lecture1(this.pathDevice,0x26L);
 		this.serialNum=this.lecture4Inverse(this.pathDevice,0x27);
+		this.serialNum=this.serialNum & 0x00000000ffffffff; //Suppression des FF intempestif
+
 		this.nomDisque=this.lectAscii(this.pathDevice,0x2BL,11);
 		this.type16=this.lectAscii(this.pathDevice,0x36L,8);
+		
+		//Lecture du BPB FAT32
+		this.tailleFatSecteur32=this.lecture4Inverse(this.pathDevice,0x24L);
+		this.attribut32=this.lecture2Inverse(this.pathDevice,0x28L);
+		this.versionMaj=this.lecture1(this.pathDevice,0x2AL);
+		this.versionMin=this.lecture1(this.pathDevice,0x2BL);
+		this.numFirstCluster=this.lecture4Inverse(this.pathDevice,0x2CL);
+		this.copBootNumSecteur=this.lecture2Inverse(this.pathDevice,0x32L);
+		this.idDisque32=this.lecture1(this.pathDevice,0x40L);
+		this.signature32=this.lecture1(this.pathDevice,0x42L);
+		this.serialNum32=this.lecture4Inverse(this.pathDevice,0x43L); //Suppression des FF intempestif.
+		this.serialNum32=this.serialNum32 & 0x00000000ffffffff; //Suppression des FF intempestif
+		this.nomDisque32=this.lectAscii(this.pathDevice,0x47L,11);
+		this.type32=this.lectAscii(this.pathDevice,0x52L,8);
 	}
 	
 	//***** Setter et getter *****
@@ -85,13 +114,36 @@ public class fat extends operationFichier
 		retour=retour+" Secteur(s) caché(s) : \t\t"+this.nbrSecteurCache+"\n";
 		retour=retour+" Secteur 32bits : \t\t"+this.nbrSecteur32+"\n\n";
 		
-		retour=retour+" --- BPB FAT12 OU FAT16 ---\n";
-		retour=retour+" ID Amovible[0x00] Fixe[0x80] : 0x"+Integer.toHexString(this.idDisque)+"\n";
-		retour=retour+" Signature : \t\t\t0x"+Integer.toHexString(this.signature)+"\n";
-		retour=retour+" Serial num : \t\t\t0x"+Long.toHexString(this.serialNum)+"\n";
-		retour=retour+" Nom : \t\t\t\t"+this.nomDisque+"\n";
-		retour=retour+" Type de FS : \t\t\t"+this.type16+"\n";
-				
+		if(!this.type32.substring(0,5).equals("FAT32")){
+			
+			retour=retour+" --- BPB FAT12 OU FAT16 ---\n";
+			retour=retour+" ID Amovible[0x00] Fixe[0x80] : 0x"+Integer.toHexString(this.idDisque)+"\n";
+			retour=retour+" Signature : \t\t\t0x"+Integer.toHexString(this.signature)+"\n";
+			retour=retour+" Serial num : \t\t\t0x"+Long.toHexString(this.serialNum)+"\n";
+			retour=retour+" Nom : \t\t\t\t"+this.nomDisque+"\n";
+			retour=retour+" Type de FS : \t\t\t"+this.type16+"\n\n";
+			
+		}
+		
+
+		else{
+			
+			retour=retour+" --- BPB FAT32 ---\n";
+			retour=retour+" Fat size : \t\t\t"+this.tailleFatSecteur32+" secteur(s)\n";
+			retour=retour+" Attr : \t\t\t0x"+Integer.toHexString(this.attribut32)+"\n";
+			retour=retour+" Major version : \t\t"+this.versionMaj+"\n";
+			retour=retour+" Minor version : \t\t"+this.versionMin+"\n";
+			retour=retour+" Num first cluster root : \t"+this.numFirstCluster+"\n";
+			retour=retour+" Num sector copy boot sector : \t"+this.copBootNumSecteur+"\n";
+			retour=retour+" ID Amovible[0x00] Fixe[0x80] : 0x"+Integer.toHexString(this.idDisque32)+"\n";
+			retour=retour+" Signature : \t\t\t0x"+Integer.toHexString(this.signature32)+"\n";
+			retour=retour+" Serial num : \t\t\t0x"+Long.toHexString(this.serialNum32)+"\n";
+			retour=retour+" Nom : \t\t\t\t"+this.nomDisque32+"\n";
+			retour=retour+" Type de FS : \t\t\t"+this.type32+"\n\n";
+						
+		}
+
+			
 		return retour;
 	}
 	
