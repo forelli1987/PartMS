@@ -13,6 +13,7 @@ Ce programme a pour but de gérer son ou ses volumes.
 * Choix de l'identifiant de la partition (exemple 0x83 -> linux).
 * Formatage bas niveau de la partition ou du volume entier.
 * Cacher la table (suppression ou restauration du magic number du MBR).
+* le chat
 
 ## Compilation
 
