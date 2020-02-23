@@ -1,4 +1,6 @@
 gpt_decorticage.odt
+.gitignore
+README.md
 mbr_format.png
 mano.java
 *.class
